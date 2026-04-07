@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, LayoutDashboard, BrainCircuit } from 'lucide-react';
+import { LogOut, LayoutDashboard, BrainCircuit, FileSearch, ClipboardList } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Layout = ({ children }) => {
@@ -32,6 +32,14 @@ const Layout = ({ children }) => {
             <Link to="/dashboard" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
               <LayoutDashboard size={20} />
               <span>Dashboard</span>
+            </Link>
+            <Link to="/resume-analysis" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+              <FileSearch size={20} />
+              <span>Resume Analysis</span>
+            </Link>
+            <Link to="/resume-insights" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+              <ClipboardList size={20} />
+              <span>Resume Insights</span>
             </Link>
             <div className="flex items-center gap-3 pl-6 border-l border-white/10">
               <div className="flex flex-col items-end">

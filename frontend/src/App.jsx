@@ -9,6 +9,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import ResultsPage from './pages/ResultsPage';
+import ResumeAnalysis from './pages/ResumeAnalysis';
+import ResumeInsights from './pages/ResumeInsights';
 
 function App() {
   return (
@@ -33,6 +35,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ResultsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/resume-analysis" 
+              element={
+                <ProtectedRoute>
+                  <ResumeAnalysis />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/resume-insights" 
+              element={
+                <ProtectedRoute>
+                  <ResumeInsights />
                 </ProtectedRoute>
               } 
             />

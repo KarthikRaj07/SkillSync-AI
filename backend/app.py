@@ -3,7 +3,13 @@ from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
 from services.file_parser import get_text
-from services.nlp_service import extract_entities, calculate_match_score, process_job_description
+from services.nlp_service import (
+    analyze_resume_text,
+    build_resume_insights,
+    extract_entities,
+    calculate_match_score,
+    process_job_description,
+)
 
 app = Flask(__name__)
 CORS(app)
@@ -101,6 +107,75 @@ def match_job():
             "suggestions":    suggestions,
         }), 200
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── POST /api/analyze-resume ─────────────────────────────────────────────
+@app.route("/api/analyze-resume", methods=["POST"])
+def analyze_resume():
+    text = ""
+    if "resume" in request.files:
+        file = request.files["resume"]
+        if file.filename == "":
+            return jsonify({"error": "No file selected"}), 400
+
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in ALLOWED_EXTS:
+            return jsonify({"error": "Only PDF and DOCX files are supported"}), 400
+
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(file_path)
+        try:
+            text = get_text(file_path)
+        finally:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+    else:
+        data = request.get_json(force=True, silent=True) or {}
+        text = data.get("text", "")
+        if not text:
+            return jsonify({"error": "resume file or text field is required"}), 400
+
+    try:
+        return jsonify(analyze_resume_text(text)), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── POST /api/resume-insights ───────────────────────────────────────────
+@app.route("/api/resume-insights", methods=["POST"])
+def resume_insights():
+    text = ""
+    job_description = ""
+    if "resume" in request.files:
+        file = request.files["resume"]
+        if file.filename == "":
+            return jsonify({"error": "No file selected"}), 400
+
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in ALLOWED_EXTS:
+            return jsonify({"error": "Only PDF and DOCX files are supported"}), 400
+
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(file_path)
+        try:
+            text = get_text(file_path)
+            job_description = request.form.get("job_description", "")
+        finally:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+    else:
+        data = request.get_json(force=True, silent=True) or {}
+        text = data.get("text", "")
+        job_description = data.get("job_description", "")
+        if not text:
+            return jsonify({"error": "resume file or text field is required"}), 400
+
+    try:
+        return jsonify(build_resume_insights(text, job_description)), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
